@@ -1,150 +1,115 @@
-# LOB Simulator
+# ⚡ High-Frequency Limit Order Book (LOB) Simulator & Algorithmic Execution Terminal
 
-Limit Order Book Simulator & Market Impact Lab
+[![Java 21](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/)
+[![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.2-green.svg)](https://spring.io/projects/spring-boot)
+[![React](https://img.shields.io/badge/React-18-blue.svg)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6.svg)](https://www.typescriptlang.org/)
+[![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED.svg)](https://www.docker.com/)
+[![CI](https://github.com/meghanadhjanga-245/LOB/actions/workflows/ci.yml/badge.svg)](https://github.com/meghanadhjanga-245/LOB/actions/workflows/ci.yml)
 
-See [SPEC.md](SPEC.md) for details.
+A deterministic, high-throughput Limit Order Book (LOB) exchange engine and institutional trading terminal built for quantitative microstructure research and algorithmic execution.
 
-## Getting Started
+---
 
-### Prerequisites
+## 🌟 Live Demo & Deployment
 
-- Java 21
-- Maven 3.8+
-- Node.js 18+ (for frontend development)
-- (Optional) Docker and Docker Compose
+| Resource | Link |
+| :--- | :--- |
+| **Live Interactive Web Terminal** | `https://lob-simulator.onrender.com` *(Replace with your live URL)* |
+| **Source Repository** | [github.com/meghanadhjanga-245/LOB](https://github.com/meghanadhjanga-245/LOB) |
+| **REST Health Endpoint** | `https://lob-simulator.onrender.com/actuator/health` |
 
-### Building the Project
+---
 
-To build all modules:
+## 🏛️ System Architecture
 
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        React / TypeScript Web UI                       │
+│  ┌───────────────────┐  ┌─────────────────────┐  ┌──────────────────┐  │
+│  │ TradingView Chart │  │    L2 Order Book    │  │  Algo Execution  │  │
+│  │  (Candles + Vol)  │  │  (Depth Grouping)   │  │ (TWAP/Crash Lab) │  │
+│  └───────────────────┘  └─────────────────────┘  └──────────────────┘  │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ HTTP / WebSocket (STOMP)
+┌───────────────────────────────────▼────────────────────────────────────┐
+│                  Spring Boot 3.2 Unified Microservice                  │
+│     (Serves embedded SPA static assets + REST Endpoints on :8080)      │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │ Low-latency Inter-thread Call
+┌───────────────────────────────────▼────────────────────────────────────┐
+│                    Deterministic LOB Matching Engine                   │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌───────────────────────┐ │
+│  │  LMAX Disruptor  │  │ Fastutil Memory  │  │ Invariant Enforcement │ │
+│  │  RingBuffer Queue│  │ RBTree Price Map │  │ (No Crossed Books)    │ │
+│  └──────────────────┘  └──────────────────┘  └───────────────────────┘ │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🚀 Key Features
+
+### 1. High-Performance Deterministic Engine
+* **Zero Floating-Point Drift**: All prices represented as fixed-point integer ticks ($1 tick = $0.01).
+* **Price-Time Priority (FIFO)**: Level-2 order queues optimized with `fastutil` primitive collections to minimize GC pauses.
+* **Order Types**: Native support for `LIMIT`, `MARKET`, `IOC` (Immediate-Or-Cancel), and `ICEBERG` (hidden pool with peak size refill).
+* **Real-Time Economics**: Tracks maker fee rebates, taker fees paid, continuous volume, and execution VWAP.
+
+### 2. Quantitative Algorithmic Execution Lab
+* **TWAP Benchmark Execution**: Slices target volume into discrete child market orders, recording benchmark arrival price, execution VWAP, and **Implementation Shortfall (in basis points)**.
+* **Almgren-Chriss $\sqrt{Q}$ Power Law**: Evaluates non-linear market impact of aggressive sweeps vs. passive liquidity.
+* **Flash Crash Stress Testing**: Injects severe sell cascades to simulate liquidity shocks, measuring spread blowout and resilience.
+* **Avellaneda-Stoikov Market Making**: Automated quoting engine that shifts bid/ask reservations based on inventory risk.
+
+### 3. Institutional Bloomberg/Binance Dark Terminal
+* **TradingView Candlestick Engine**: Live 1s / 5s / 15s candlestick chart with volume histogram powered by `lightweight-charts`.
+* **Active Working Orders Drawer**: Real-time table of user resting orders with 1-click cancellation and "Cancel All".
+* **L2 Depth Grouping**: Aggregates adjacent ticks into buckets (`0.01` to `1.00`).
+* **Web Audio Synthesis**: Low-latency synthesized sound cues for executions and institutional whale orders ($\ge 100$ units).
+
+---
+
+## 🛠️ Local Development & Quick Start
+
+### 1. Clone & Build
 ```bash
-mvn clean install
+git clone https://github.com/meghanadhjanga-245/LOB.git
+cd LOB
+mvn clean install -DskipTests
 ```
 
-To build a specific module:
-
+### 2. Run Single Unified Server (Port 8080)
+The React dashboard is pre-compiled into Spring Boot:
 ```bash
-mvn clean install -pl <module-name>
+mvn -pl service spring-boot:run
 ```
+Open **http://localhost:8080** in your browser.
 
-For example, to build only the engine module:
+---
+
+## 🐳 Docker Production Deployment
+
+Run containerized locally:
 ```bash
-mvn clean install -pl engine
+docker compose up --build
 ```
 
-### Running the Application (Unified Single Link)
+---
 
-The frontend React dashboard is embedded directly into the Spring Boot service, serving both the UI and backend APIs together under a single URL.
+## 📊 Endpoints Overview
 
-```bash
-cd service
-mvn spring-boot:run
-```
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `GET` | `/` | Web Trading Terminal UI |
+| `GET` | `/api/orderbook/depth?levels=20` | Full L2 depth snapshot (Bids/Asks) |
+| `POST` | `/api/orderbook` | Submit order (`LIMIT`, `MARKET`, `IOC`, `ICEBERG`) |
+| `DELETE` | `/api/orderbook/{orderId}` | Cancel single resting order by ID |
+| `DELETE` | `/api/orderbook` | Mass cancel all active orders (Clear book) |
+| `GET` | `/api/orderbook/stats` | Spread, total volume, and invariant validation |
+| `GET` | `/actuator/health` | Service health status |
 
-Open your browser at: **http://localhost:8080**
+---
 
-- **UI Dashboard**: http://localhost:8080/
-- **REST API**: http://localhost:8080/api/orderbook
-- **WebSocket STOMP**: http://localhost:8080/ws
-- **Actuator Health**: http://localhost:8080/actuator/health
-
-### (Optional) Frontend Development with Vite Dev Server
-
-If you are developing frontend components with Hot Module Replacement (HMR):
-
-```bash
-cd web
-npm install
-npm run dev
-```
-
-The Vite dev server runs at http://localhost:3000 and automatically proxies `/api` and `/ws` requests to the backend at http://localhost:8080.
-
-### Running Benchmarks
-
-To run the performance benchmarks:
-
-```bash
-cd benchmarks
-mvn clean install
-java -jar target/benchmarks.jar
-```
-
-### Running Tests
-
-To run unit tests for all modules:
-
-```bash
-mvn test
-```
-
-To run tests for a specific module:
-
-```bash
-mvn test -pl <module-name>
-```
-
-### Module Overview
-
-1. **engine** - Core limit order book implementation (OrderBook, MatchingEngine, Order, PriceLevel, TradeEvent)
-2. **flow** - Synthetic order flow generator with Poisson arrivals
-3. **experiments** - Market impact analysis and experimental tools
-4. **service** - Backend API layer (Spring Boot) with REST endpoints and WebSocket
-5. **web** - Frontend dashboard (React + TypeScript + Vite)
-6. **benchmarks** - Performance benchmarks using JMH
-7. **notebooks** - Jupyter notebooks for analysis and experimentation
-
-### Architecture
-
-The system follows a modular architecture:
-
-```
-┌─────────────┐    ┌──────────────┐    ┌────────────────┐
-│  Order Flow │───▶│  Matching    │───▶│  Order Book    │
-│ Generator   │    │  Engine      │    │  (Core)        │
-└─────────────┘    └──────────────┘    └────────────────┘
-      ▲                   │                   │
-      │                   ▼                   ▼
-┌─────────────┐    ┌──────────────┐    ┌────────────────┐
-│             │◀───│              │◀───│                │
-│ Experiments │    │  Backend API │    │  Frontend      │
-│ (Impact)    │    │  (Service)   │    │  Dashboard     │
-└─────────────┘    └──────────────┘    └────────────────┘
-```
-
-### API Endpoints
-
-The backend service provides the following REST endpoints:
-
-- `POST /api/orderbook` - Submit a new order
-- `DELETE /api/orderbook/{orderId}` - Cancel an order
-- `GET /api/orderbook/best-bid` - Get best bid price and quantity
-- `GET /api/orderbook/best-ask` - Get best ask price and quantity
-- `GET /api/orderbook/spread` - Get current spread
-- `GET /api/orderbook/is-crossed` - Check if book is crossed
-- `GET /api/orderbook/check-invariants` - Validate internal invariants
-
-WebSocket endpoints (via STOMP over SockJS at `/ws`):
-- `/topic/orderbookUpdates` - General order book updates
-- `/topic/bestPrices` - Best bid and ask updates
-- `/topic/spread` - Spread updates
-
-### Docker Compose
-
-A basic Docker Compose setup is provided in `docker-compose.yml` for running the full stack.
-
-```bash
-docker-compose up
-```
-
-### Performance Targets
-
-The system is designed to achieve:
-- 500K+ orders/sec processing throughput on a modern laptop
-- Sub-microsecond latency for order processing
-- Deterministic behavior for replayability
-- Real-time market impact analysis
-
-### License
-
-This project is open source and available under the MIT License.
+## 📜 License
+MIT License. Developed for quantitative finance, market microstructure analysis, and high-frequency trading research.
