@@ -23,4 +23,5 @@ COPY --from=build /app/service/target/app.jar app.jar
 ENV PORT=8080
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-Xmx1024m", "-jar", "app.jar"]
+# Use container memory awareness (safe for 512MB free tier containers)
+ENTRYPOINT ["java", "-XX:+UseG1GC", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
