@@ -10,7 +10,7 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>LOB Simulator</name>
-    <description>Limit Order Book Simulator & Market Impact Lab</description>
+    <description>Limit Order Book Simulator &amp; Market Impact Lab</description>
 
     <modules>
         <module>engine</module>
@@ -25,30 +25,15 @@
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.parameters>true</maven.compiler.parameters>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <junit.version>5.10.0</junit.version>
-        <jqwik.version>1.7.0</jqwik.version>
+        <junit.version>5.9.3</junit.version>
+        <jqwik.version>1.5.0</jqwik.version>
         <spring.boot.version>3.2.0</spring.boot.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- JUnit 5 -->
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-bom</artifactId>
-                <version>${junit.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <!-- jqwik -->
-            <dependency>
-                <groupId>net.jqwik</groupId>
-                <artifactId>jqwik-bom</artifactId>
-                <version>${jqwik.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
             <!-- Spring Boot -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>

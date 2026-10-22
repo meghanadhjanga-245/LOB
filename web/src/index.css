@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background-color: #050505;
+  color: #f8f8f8;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* ── Flash animations for order book level changes ─────────────────── */
+@keyframes flash-green {
+  0%   { background-color: rgba(0, 255, 170, 0.30); }
+  100% { background-color: transparent; }
+}
+
+@keyframes flash-red {
+  0%   { background-color: rgba(255, 51, 102, 0.30); }
+  100% { background-color: transparent; }
+}
+
+.flash-bid { animation: flash-green 0.35s ease-out; }
+.flash-ask { animation: flash-red   0.35s ease-out; }
+
+/* ── Toast / Notification animations (Tailwind v4 compat shim) ─────── */
+@keyframes slide-in-bottom {
+  from { transform: translateY(14px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes fade-in-kf {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-in {
+  animation: slide-in-bottom 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.fade-in       { animation: fade-in-kf   0.2s ease-out forwards; }
+.slide-in-from-bottom-3 { /* merged into animate-in above */ }
+
+/* ── Pulse glow on bid/ask badges ──────────────────────────────────── */
+@keyframes glow-bid {
+  0%, 100% { box-shadow: 0 0 4px #00ffaa55; }
+  50%       { box-shadow: 0 0 14px #00ffaaaa; }
+}
+@keyframes glow-ask {
+  0%, 100% { box-shadow: 0 0 4px #ff336655; }
+  50%       { box-shadow: 0 0 14px #ff3366aa; }
+}
+
+.glow-bid { animation: glow-bid 2s ease-in-out infinite; }
+.glow-ask { animation: glow-ask 2s ease-in-out infinite; }
+
+/* ── Scrollbar styling ─────────────────────────────────────────────── */
+.custom-scrollbar::-webkit-scrollbar        { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track  { background: #050505; }
+.custom-scrollbar::-webkit-scrollbar-thumb  { background: #2a2a35; border-radius: 2px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #3f3f50; }
+
+/* Global scrollbar for the whole page */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: #080809; }
+::-webkit-scrollbar-thumb  { background: #222230; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #38384a; }
+
+/* ── Subtle grid background pattern ─────────────────────────────────── */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* ── Number counter shimmer (price changes) ──────────────────────────── */
+@keyframes price-up {
+  0%   { color: #00ffaa; text-shadow: 0 0 8px #00ffaa88; }
+  100% { color: inherit;  text-shadow: none; }
+}
+@keyframes price-down {
+  0%   { color: #ff3366; text-shadow: 0 0 8px #ff336688; }
+  100% { color: inherit;  text-shadow: none; }
+}
+.price-up   { animation: price-up   0.6s ease-out; }
+.price-down { animation: price-down 0.6s ease-out; }

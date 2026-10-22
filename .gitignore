@@ -81,3 +81,14 @@ docker-compose.override.yml
 
 # Windows
 Thumbs.db
+
+# Node / Web Frontend
+node_modules/
+web/node_modules/
+web/dist/
+*.bin
+
+# Scratch Scripts
+*.py
+*.pyc
+__pycache__/
